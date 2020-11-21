@@ -47,9 +47,13 @@ def _configure_app(app):
 
 def create_app():
     app = Flask("doggo_finder", template_folder="dog_api_backend/templates")
-    CORS(app)
     _configure_app(app)
     _configure_logging(app)
+
+    CORS(app, supports_credentials=True,
+         resources="/*",
+         origins=app.config['ORIGINS'],
+         allow_headers="*")
 
     oauth.init_app(app)
     oauth.register(

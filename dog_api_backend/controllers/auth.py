@@ -1,7 +1,8 @@
 from functools import wraps
 
-from flask import Blueprint, url_for, session, request, g
+from flask import Blueprint, url_for, session, request, g, jsonify, current_app
 from authlib.integrations.flask_client import OAuth
+from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 
 from dog_api_backend.db import db
@@ -19,6 +20,12 @@ def login():
     return oauth.github.authorize_redirect(redirect_uri)
 
 
+@auth.route('/logout')
+def logout():
+    session.clear()
+    return jsonify({"ok": True})
+
+
 @auth.route('/callback')
 def callback():
     token = oauth.github.authorize_access_token()
@@ -33,7 +40,14 @@ def callback():
         db.session.add(new_user)
         db.session.commit()
     # do something with the token and profile
-    return redirect('/')
+    return redirect(current_app.config.get("FRONTEND_REDIRECT", 'http://localhost:3000/'))
+
+
+@auth.route('/loggedin')
+def get_current_user():
+    if session.get('email'):
+        return {"value": True, "email": session["email"]}
+    abort(404)
 
 
 def login_required(f):
