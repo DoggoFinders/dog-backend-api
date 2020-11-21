@@ -5,9 +5,10 @@ from io import BytesIO
 from tempfile import TemporaryDirectory
 
 from flask import (Blueprint, abort, current_app, jsonify, render_template,
-                   request)
+                   request, g)
 from flask.helpers import make_response, send_file
 
+from .auth import login_required
 from ..db import db
 from ..models import LostDog, CoatColour, ReportedDog
 from ..dog_inference_api import send_dog_image
@@ -73,6 +74,12 @@ def update_lost_dog_info(id):
     return jsonify({"dog": dog.id})
 
 
+@api.route("/authorized", methods=["GET"])
+@login_required
+def authorized_view():
+    return jsonify({"user": g.user.email})
+
+
 @api.route("/dogs/report", methods=["POST"])
 def report_dog():
     latitude = request.form.get("latitude")
@@ -111,4 +118,3 @@ def all_lost_in_neighbourhood():
     all_lost_dogs_in_neighbourhood = [dog.id for dog in all_lost_dogs
                                       if distance.distance(coordinates, dog.coordinates).km <= max_distance_in_km]
     return jsonify({"lost_dogs": all_lost_dogs_in_neighbourhood})
-
