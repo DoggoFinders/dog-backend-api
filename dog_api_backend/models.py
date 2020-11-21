@@ -50,3 +50,10 @@ class ReportedDog(db.Model):
 
     def __str__(self):
         return f"""<ReportedDog owner:{self.owner_email}, breed:{self.breed} >"""
+
+
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    email = db.Column(db.String(256), nullable=False)
+    gh_user_id = db.Column(db.Integer(), nullable=False)

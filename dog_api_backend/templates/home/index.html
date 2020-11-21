@@ -4,5 +4,8 @@
 </head>
 <body>
     <p>This is a simple API for submitting lost dogs</p>
+    {% if session.email %}
+        <p>Logged in as {{ session.email }}</p>
+    {% endif %}
 </body>
 </html>
