@@ -1,3 +1,4 @@
+import io
 import logging
 from collections import defaultdict
 from datetime import datetime
@@ -6,7 +7,7 @@ from tempfile import TemporaryDirectory
 
 from flask import (Blueprint, abort, current_app, jsonify, render_template,
                    request, g)
-from flask.helpers import make_response, send_file
+from flask.helpers import make_response, send_file, url_for
 
 from .auth import login_required
 from ..db import db
@@ -107,6 +108,18 @@ def update_reported_dog_info(id):
     return jsonify({"dog": dog.id})
 
 
+@api.route("/dogs/lost/image/<int:id>", methods=["GET"])
+def get_dog_image(id):
+    dog = LostDog.query.get_or_404(id)
+    mem = io.BytesIO()
+    mem.write(dog.picture)
+    mem.seek(0)
+    return send_file(
+        mem,
+        mimetype='application/octet-stream'
+    )
+
+
 @api.route("/dogs/lost/all", methods=["GET"])
 def all_lost_in_neighbourhood():
     latitude = request.form.get("latitude")
@@ -115,6 +128,9 @@ def all_lost_in_neighbourhood():
     coordinates = (latitude, longitude)
 
     all_lost_dogs = db.session.query(LostDog).all()
-    all_lost_dogs_in_neighbourhood = [dog.id for dog in all_lost_dogs
-                                      if distance.distance(coordinates, dog.coordinates).km <= max_distance_in_km]
+    all_lost_dogs_in_neighbourhood = [{
+        "id": dog.id, "breed": dog.breed, "coat_colour": dog.coat_colour,
+        "picture": url_for('api.get_dog_image', id=dog.id, _external=True)} for dog in all_lost_dogs
+        if distance.distance(coordinates, dog.coordinates).km <= max_distance_in_km
+    ]
     return jsonify({"lost_dogs": all_lost_dogs_in_neighbourhood})
