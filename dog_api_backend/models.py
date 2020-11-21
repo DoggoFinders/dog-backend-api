@@ -1,5 +1,6 @@
 import enum
 from datetime import datetime
+from flask_login import UserMixin
 
 from .db import db
 
@@ -24,10 +25,13 @@ class LostDog(db.Model):
     coat_colour = db.Column(db.Enum(CoatColour))
     breed = db.Column(db.String(80))
     picture = db.Column(db.LargeBinary())
-    timestamp = db.Column(db.DateTime())
     latitude = db.Column(db.Numeric(10, 6))
     longitude = db.Column(db.Numeric(10, 6))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @property
+    def coordinates(self):
+        return self.latitude, self.longitude
 
     def __str__(self):
         return f"""<LostDog owner:{self.owner_email}, breed:{self.breed} >"""
@@ -40,7 +44,6 @@ class ReportedDog(db.Model):
     coat_colour = db.Column(db.Enum(CoatColour))
     breed = db.Column(db.String(80))
     picture = db.Column(db.LargeBinary())
-    timestamp = db.Column(db.DateTime())
     latitude = db.Column(db.Numeric(10, 6))
     longitude = db.Column(db.Numeric(10, 6))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)

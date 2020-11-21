@@ -3,6 +3,7 @@ from logging.config import dictConfig
 from pathlib import Path
 
 from flask import Flask
+from flask_cors import CORS
 
 from .controllers.api import api
 from .controllers.home import home
@@ -44,7 +45,8 @@ def _configure_app(app):
 
 
 def create_app():
-    app = Flask("attestation", template_folder="dog_api_backend/templates")
+    app = Flask("doggo_finder", template_folder="dog_api_backend/templates")
+    CORS(app)
     _configure_app(app)
     _configure_logging(app)
 
