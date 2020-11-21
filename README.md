@@ -1,3 +1,4 @@
-# French attestation chatbot
+# Doggo finder API
 
-This bot allows you to generate a french attestation.
+This API serves as the main entrypoint for finding doggos.
+
