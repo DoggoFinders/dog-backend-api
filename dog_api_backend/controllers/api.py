@@ -122,9 +122,9 @@ def get_dog_image(id):
 
 @api.route("/dogs/lost/all", methods=["GET"])
 def all_lost_in_neighbourhood():
-    latitude = request.form.get("latitude")
-    longitude = request.form.get("longitude")
-    max_distance_in_km = float(request.form.get("max_distance_in_km"))
+    latitude = request.args.get("latitude")
+    longitude = request.args.get("longitude")
+    max_distance_in_km = float(request.args.get("max_distance_in_km"))
     coordinates = (latitude, longitude)
 
     all_lost_dogs = db.session.query(LostDog).all()
