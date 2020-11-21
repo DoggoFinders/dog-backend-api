@@ -1,4 +1,8 @@
-SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
+SQLALCHEMY_DATABASE_URI = 'postgresql://localhost'
 TIMEZONE = 'Europe/Zurich'
-INFERENCE_API=''
+INFERENCE_API='None'
 
+GITHUB_CLIENT_ID='secret'
+GITHUB_CLIENT_SECRET='secret'
+
+SECRET_KEY='secret'

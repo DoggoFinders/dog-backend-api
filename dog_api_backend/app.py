@@ -7,6 +7,7 @@ from flask_cors import CORS
 
 from .controllers.api import api
 from .controllers.home import home
+from .controllers.auth import oauth, auth
 from .db import db, migrate
 
 dictConfig(
@@ -50,10 +51,22 @@ def create_app():
     _configure_app(app)
     _configure_logging(app)
 
+    oauth.init_app(app)
+    oauth.register(
+        name='github',
+        access_token_url='https://github.com/login/oauth/access_token',
+        access_token_params=None,
+        authorize_url='https://github.com/login/oauth/authorize',
+        authorize_params=None,
+        api_base_url='https://api.github.com/',
+        client_kwargs={'scope': 'user:email'},
+    )
+
     db.init_app(app)
     migrate.init_app(app, db)
 
     app.register_blueprint(api)
+    app.register_blueprint(auth)
     app.register_blueprint(home)
 
     return app
