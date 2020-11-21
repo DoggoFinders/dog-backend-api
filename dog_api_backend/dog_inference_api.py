@@ -7,6 +7,7 @@ from flask import current_app
 
 def _get_inference_url():
     api_root = current_app.config.get('INFERENCE_API')
+    print(api_root)
     return f"{api_root}/api/infer"
 
 
