@@ -98,6 +98,15 @@ def report_dog():
     return jsonify({"id": dog.id, "breed": breed.json()})
 
 
+@api.route("/dogs/infer", methods=["POST"])
+def infer_dog():
+    picture = request.files['image']
+    picture = picture.read()
+
+    breed = send_dog_image(picture)
+    return jsonify({"breed": breed.json()})
+
+
 @api.route("/dogs/report/<int:id>", methods=["POST"])
 def update_reported_dog_info(id):
     dog = db.session.query(ReportedDog).get(id)
