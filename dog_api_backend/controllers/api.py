@@ -112,14 +112,17 @@ def update_reported_dog_info(id):
 def report_finding_a_lost_dog(id):
     latitude = request.form.get("latitude")
     longitude = request.form.get("longitude")
+    if latitude and longitude:
 
-    lost_dog = db.session.query(LostDog).get(id)
+        lost_dog = db.session.query(LostDog).get(id)
 
-    dog = ReportedDog(latitude=latitude, longitude=longitude, picture=lost_dog.picture,
-                      coat_colour=lost_dog.coat_colour, breed=lost_dog.breed)
-    db.session.add(dog)
-    db.session.commit()
-    return jsonify({"id": dog.id})
+        dog = ReportedDog(latitude=latitude, longitude=longitude, picture=lost_dog.picture,
+                          coat_colour=lost_dog.coat_colour, breed=lost_dog.breed)
+        db.session.add(dog)
+        db.session.commit()
+        return jsonify({"id": dog.id})
+    else:
+        return jsonify({"id": None})
 
 
 @api.route("/dogs/lost/image/<int:id>", methods=["GET"])
@@ -136,17 +139,24 @@ def get_dog_image(id):
 
 @api.route("/dogs/lost/all", methods=["GET"])
 def all_lost_in_neighbourhood():
-    latitude = request.args.get("latitude")
-    longitude = request.args.get("longitude")
-    max_distance_in_km = float(request.args.get("max_distance_in_km"))
-    coordinates = (latitude, longitude)
+    try:
+        latitude = request.args.get("latitude")
+        longitude = request.args.get("longitude")
+        max_distance_in_km = float(request.args.get("max_distance_in_km"))
+        if latitude and longitude:
+            coordinates = (latitude, longitude)
 
-    all_lost_dogs = db.session.query(LostDog).all()
-    all_lost_dogs_in_neighbourhood = [{
-        "id": dog.id, "breed": dog.breed, "coat_colour": dog.coat_colour.value[0] if dog.coat_colour else None,
-        "picture": url_for('api.get_dog_image', id=dog.id, _external=True)} for dog in all_lost_dogs
-        if distance.distance(coordinates, dog.coordinates).km <= max_distance_in_km
-    ]
-    return jsonify({"lost_dogs": all_lost_dogs_in_neighbourhood})
+            all_lost_dogs = db.session.query(LostDog).all()
+            all_lost_dogs_in_neighbourhood = [{
+                "id": dog.id, "breed": dog.breed, "coat_colour": dog.coat_colour.value[0] if dog.coat_colour else None,
+                "picture": url_for('api.get_dog_image', id=dog.id, _external=True)} for dog in all_lost_dogs
+                if distance.distance(coordinates, dog.coordinates).km <= max_distance_in_km
+            ]
+            return jsonify({"lost_dogs": all_lost_dogs_in_neighbourhood})
+        else:
+            return jsonify({"lost_dogs": []})
+    except:
+        return jsonify({"lost_dogs": []})
+
 
 
