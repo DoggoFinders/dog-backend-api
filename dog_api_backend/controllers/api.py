@@ -108,6 +108,20 @@ def update_reported_dog_info(id):
     return jsonify({"dog": dog.id})
 
 
+@api.route("/dogs/found/<int:id>", methods=["POST"])
+def report_finding_a_lost_dog(id):
+    latitude = request.form.get("latitude")
+    longitude = request.form.get("longitude")
+
+    lost_dog = db.session.query(LostDog).get(id)
+
+    dog = ReportedDog(latitude=latitude, longitude=longitude, picture=lost_dog.picture,
+                      coat_colour=lost_dog.coat_colour, breed=lost_dog.breed)
+    db.session.add(dog)
+    db.session.commit()
+    return jsonify({"id": dog.id})
+
+
 @api.route("/dogs/lost/image/<int:id>", methods=["GET"])
 def get_dog_image(id):
     dog = LostDog.query.get_or_404(id)
@@ -134,3 +148,5 @@ def all_lost_in_neighbourhood():
         if distance.distance(coordinates, dog.coordinates).km <= max_distance_in_km
     ]
     return jsonify({"lost_dogs": all_lost_dogs_in_neighbourhood})
+
+
