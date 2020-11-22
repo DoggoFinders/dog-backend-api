@@ -181,8 +181,9 @@ def match_dogs():
 
 
 @api.route("/dogs/notifications", methods=["GET"])
+@login_required
 def possible_reported_dogs_for_email():
-    email = session.get('email')
+    email = g.user.email
     matching_reported_dogs_ids = set(n.reported_dog_id for n in
                                   db.session.query(Notification).filter(Notification.owner_email == email))
     reported_dogs = db.session.query(ReportedDog).filter(ReportedDog.id.in_(matching_reported_dogs_ids))
@@ -191,8 +192,8 @@ def possible_reported_dogs_for_email():
         "breed": dog.breed,
         "coat_colour": dog.coat_colour.value[0] if dog.coat_colour else None,
         "picture": url_for('api.get_dog_image', id=dog.id, _external=True),
-        "latitude": dog.latitude,
-        "longitude": dog.longitude,
+        "latitude": float(dog.latitude),
+        "longitude": float(dog.longitude),
     } for dog in reported_dogs
     ]
     return jsonify({"dogs": reported_dogs})
