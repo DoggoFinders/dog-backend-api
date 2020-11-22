@@ -33,8 +33,9 @@ def _create_lost_dog():
 
 
 @api.route("/dogs/lost", methods=["POST"])
+@login_required
 def submit_lost_dog():
-    owner_email = request.form.get("owner_email")
+    owner_email = g.user.email
     latitude = request.form.get("latitude")
     details = request.form.get("details")
     longitude = request.form.get("longitude")
@@ -77,17 +78,18 @@ def authorized_view():
 def report_dog():
     latitude = request.form.get("latitude")
     longitude = request.form.get("longitude")
+    coat_colour = request.form.get("coat_colour")
+    breed = request.form.get("breed")
 
     picture = request.files['image']
     picture = picture.read()
 
-    dog = ReportedDog(latitude=latitude, longitude=longitude, picture=picture)
+    dog = ReportedDog(latitude=latitude, longitude=longitude,
+                      picture=picture, coat_colour=coat_colour, breed=breed)
     db.session.add(dog)
     db.session.commit()
 
-    # Infer the breed
-    breed = send_dog_image(picture)
-    return jsonify({"id": dog.id, "breed": breed.json()})
+    return jsonify({"id": dog.id})
 
 
 @api.route("/dogs/infer", methods=["POST"])
