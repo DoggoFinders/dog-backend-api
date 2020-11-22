@@ -156,8 +156,12 @@ def all_lost_in_neighbourhood():
 
         all_lost_dogs = db.session.query(LostDog).all()
         all_lost_dogs_in_neighbourhood = [{
-            "id": dog.id, "breed": dog.breed, "coat_colour": dog.coat_colour.value[0] if dog.coat_colour else None,
-            "picture": url_for('api.get_dog_image', id=dog.id, _external=True)} for dog in all_lost_dogs
+            "id": dog.id,
+            "breed": dog.breed,
+            "coat_colour": dog.coat_colour.value[0] if dog.coat_colour else None,
+            "details": dog.details,
+            "picture": url_for('api.get_dog_image', id=dog.id, _external=True)
+        } for dog in all_lost_dogs
             if distance.distance(coordinates, dog.coordinates).km <= max_distance_in_km
         ]
         return jsonify({"lost_dogs": all_lost_dogs_in_neighbourhood})
