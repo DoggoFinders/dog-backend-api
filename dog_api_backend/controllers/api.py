@@ -89,6 +89,8 @@ def report_dog():
     db.session.add(dog)
     db.session.commit()
 
+    match_dogs(latitude, longitude)
+
     return jsonify({"id": dog.id})
 
 
@@ -126,7 +128,7 @@ def report_finding_a_lost_dog():
                           coat_colour=lost_dog.coat_colour, breed=lost_dog.breed)
         db.session.add(dog)
         db.session.commit()
-        match_dogs()
+        match_dogs(latitude, longitude)
         return jsonify({"id": dog.id})
     else:
         return jsonify({"id": 0})
@@ -163,8 +165,7 @@ def all_lost_in_neighbourhood():
         return jsonify({"lost_dogs": []})
 
 
-def match_dogs():
-    # TODO call after reporting
+def match_dogs(latitude, longitude):
     all_lost_dogs = db.session.query(LostDog)
 
     for lost_dog in all_lost_dogs:
@@ -173,11 +174,16 @@ def match_dogs():
         all_matching_reported_dogs = db.session.query(ReportedDog).filter(ReportedDog.breed == lost_dog.breed) \
             .filter(ReportedDog.coat_colour == lost_dog.coat_colour).filter(~ReportedDog.id.in_(already_reported_ids))
 
-        for matching_reported in all_matching_reported_dogs:
-            notification = Notification(owner_email=lost_dog.owner_email, lost_dog_id=lost_dog.id,
-                                        reported_dog_id=matching_reported.id)
-            db.session.add(notification)
-            db.session.commit()
+        for matching_reported_dog in all_matching_reported_dogs:
+
+            coordinates = (float(latitude), float(longitude))
+            dogs_cords = lost_dog.coordinates
+
+            if distance.distance(coordinates, dogs_cords).km < 10.0:
+                notification = Notification(owner_email=lost_dog.owner_email, lost_dog_id=lost_dog.id,
+                                            reported_dog_id=matching_reported_dog.id)
+                db.session.add(notification)
+                db.session.commit()
 
 
 @api.route("/dogs/notifications", methods=["GET"])
