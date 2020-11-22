@@ -36,18 +36,20 @@ def _create_lost_dog():
 def submit_lost_dog():
     owner_email = request.form.get("owner_email")
     latitude = request.form.get("latitude")
+    details = request.form.get("details")
     longitude = request.form.get("longitude")
+    coat_colour = request.form.get("coat_colour")
+    breed = request.form.get("breed")
 
     picture = request.files['image']
     picture = picture.read()
 
-    dog = LostDog(owner_email=owner_email, latitude=latitude, longitude=longitude, picture=picture)
+    dog = LostDog(owner_email=owner_email, latitude=latitude, details=details, coat_colour=coat_colour,
+                  breed=breed, longitude=longitude, picture=picture)
     db.session.add(dog)
     db.session.commit()
 
-    # Infer the breed
-    breed = send_dog_image(picture)
-    return jsonify({"id": dog.id, "breed": breed.json()})
+    return jsonify({"id": dog.id})
 
 
 def _update_dog_info(dog):
@@ -63,16 +65,6 @@ def _update_dog_info(dog):
     if breed:
         dog.breed = breed
     db.session.commit()
-
-
-@api.route("/dogs/lost/<int:id>", methods=["POST"])
-def update_lost_dog_info(id):
-    dog = db.session.query(LostDog).get(id)
-    try:
-        _update_dog_info(dog)
-    except Exception as e:
-        return jsonify({"error": str(e)})
-    return jsonify({"dog": dog.id})
 
 
 @api.route("/authorized", methods=["GET"])

@@ -27,6 +27,7 @@ class LostDog(db.Model):
     picture = db.Column(db.LargeBinary())
     latitude = db.Column(db.Numeric(10, 6))
     longitude = db.Column(db.Numeric(10, 6))
+    details = db.Column(db.String(250))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
     @property
