@@ -58,3 +58,11 @@ class User(db.Model):
     id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
     email = db.Column(db.String(256), nullable=False)
     gh_user_id = db.Column(db.Integer(), nullable=False)
+
+
+class Notification(db.Model):
+    __tablename__ = "notifications"
+    id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    owner_email = db.Column(db.String(80))
+    lost_dog_id = db.Column(db.Integer())
+    reported_dog_id = db.Column(db.Integer())

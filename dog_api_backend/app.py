@@ -50,9 +50,11 @@ def create_app():
     _configure_app(app)
     _configure_logging(app)
 
-    CORS(app, supports_credentials=True,
+    CORS(app,
+         origins='*',
+         supports_credentials=True,
          resources="/*",
-         origins=app.config['ORIGINS'],
+         allow_methods="*",
          allow_headers="*")
 
     oauth.init_app(app)
