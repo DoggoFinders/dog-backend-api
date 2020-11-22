@@ -17,6 +17,8 @@ auth = Blueprint('auth', __name__, url_prefix='/auth')
 @auth.route('/login')
 def login():
     redirect_uri = url_for('auth.callback', _external=True)
+    if current_app.config.get('CUSTOM_REDIRECT'):
+        redirect_uri = current_app.config.get('CUSTOM_REDIRECT')
     return oauth.github.authorize_redirect(redirect_uri)
 
 
